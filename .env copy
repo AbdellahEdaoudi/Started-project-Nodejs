@@ -1,0 +1,6 @@
+MONGO_URL=mongodb://127.0.0.1:27017/permission
+# AuthController
+ACCESS_TOKEN_SECRET=Kfdsgpkdsepgkl5pdsklghptdkh
+REFRESH_TOKEN_SECRET=256hfgd4h56fd4sh54q6sr5h46
+# JWT_SECRET
+ACCESS_TOKEN_SECRET=ABCDEFGH
