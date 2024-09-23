@@ -5,7 +5,6 @@ const cookiesParser = require("cookie-parser")
 const cors = require("cors");
 const AuthController = require("./controllers/AuthController");
 const UserController = require("./controllers/UserController")
-const BookController = require("./controllers/BookController")
 const { verifyJWT } = require("./middleware/verifyJWT");
 const { verifyRole } = require("./middleware/verifyRole");
 const { connectDB } = require('./config/dbConnect');
@@ -31,10 +30,7 @@ app.post("/refresh", AuthController.refresh);
 app.post("/logout", AuthController.logout);
 // User Routes
 app.get("/users", UserController.getUsers);
-// Book Routes
-app.get("/books", BookController.getAllBooks);
-app.post("/books", BookController.addBook);
-app.delete("/books/:id",verifyJWT, verifyRole("admin"), BookController.deleteBookById);
+
 
 
 

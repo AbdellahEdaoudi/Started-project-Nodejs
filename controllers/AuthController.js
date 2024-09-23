@@ -59,14 +59,8 @@ exports.loginUser = async (req, res) => {
     const accessToken = jwt.sign(
       { UserInfo: { id: foundUser._id, role: foundUser.role } },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: 60 * 10 }
+      { expiresIn:15}
     );
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: false, // true for https
-      sameSite: "None",
-      maxAge: 60 * 60 * 1000,
-    });
     const refreshToken = jwt.sign(
       { UserInfo: { id: foundUser._id, role: foundUser.role } },
       process.env.REFRESH_TOKEN_SECRET,
@@ -75,7 +69,7 @@ exports.loginUser = async (req, res) => {
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
       secure: false,  // true for https
-      sameSite: "None",
+      sameSite: "Strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.json({
@@ -91,24 +85,32 @@ exports.loginUser = async (req, res) => {
 };
 exports.refresh = (req, res) => {
   const cookies = req.cookies;
-  if (!cookies?.jwt) res.status(401).json({ message: 'Unauthorized' });
+  console.log("Cookies:", cookies); 
+  if (!cookies?.jwt) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  
   const refreshToken = cookies.jwt;
-  jwt.verify(
-    refreshToken,
-    process.env.REFRESH_TOKEN_SECRET,
-    async (err, user) => {
-      if (err) return res.status(403).json({ message: 'Forbidden' });
-      const foundUser = await User.findById(user.UserInfo.id).exec();
-      if (!foundUser) return res.status(401).json({ message: 'Unauthorized' });
-      const accessToken = jwt.sign(
-        { UserInfo: { id: foundUser._id, role: foundUser.role } },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "15m"}
-      );
-      res.json({ accessToken });
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Forbidden' });
     }
-  );
+    
+    const foundUser = await User.findById(user.UserInfo.id).exec();
+    if (!foundUser) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    
+    const accessToken = jwt.sign(
+      { UserInfo: { id: foundUser._id, role: foundUser.role } },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "30m"}
+    );
+    
+    return res.json({ accessToken });
+  });
 };
+
 exports.logout = (req, res) => {
   const cookies = req.cookies;
   if (!cookies?.jwt) return res.sendStatus(204); //No content
