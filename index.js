@@ -3,14 +3,10 @@ const express = require("express");
 const app = express();
 const cookiesParser = require("cookie-parser")
 const cors = require("cors");
-const AuthController = require("./controllers/AuthController");
-const UserController = require("./controllers/UserController")
-const { verifyJWT } = require("./middleware/verifyJWT");
-const { verifyRole } = require("./middleware/verifyRole");
+const PORT = 1111;
 const { connectDB } = require('./config/dbConnect');
 const { corsOption } = require('./config/corsoptions');
-const Usr = require('./models/User');
-const PORT = 1111;
+const authRoutes = require("./routes/authRoutes")
 const path = require("path")
 
 
@@ -22,18 +18,8 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-
-// Auth Routes
-app.post("/register", AuthController.registerUser);
-app.post("/login", AuthController.loginUser);
-app.post("/refresh", AuthController.refresh);
-app.post("/logout", AuthController.logout);
-// User Routes
-app.get("/users", UserController.getUsers);
-
-
-
-
+// Routes
+app.use("/api", authRoutes);
 
 
 app.use("/",express.static(path.join(__dirname,"public")));
